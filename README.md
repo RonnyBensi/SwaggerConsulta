@@ -417,3 +417,100 @@ public class WebConfig implements WebMvcConfigurer {
 		return bean;
 	}
 }
+
+XXXXXXXXXXXXXxResources
+xxxxxxxxxxxxxxschema-h2.sql
+create table airport (
+    id integer not null generated always as identity (start with 1, increment by 1),
+    cod integer,
+    name varchar(256) not null
+);
+
+create index cod_unq on airport(cod);
+ 
+xxxxxxxxxxxxxxxxlogback
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<property name="FILE_NAME" value="teste-ec" />
+	<property name="FILE_PATH" value="/logs" />
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${FILE_PATH}/${FILE_NAME}/${FILE_NAME}.log</file>
+		<encoder>
+			<pattern>%d{dd MMM yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${FILE_PATH}/${FILE_NAME}/archived/${FILE_NAME}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+	</appender>
+	
+	<logger name="br.com.cielo" level="INFO" additivity="false">
+		<appender-ref ref="FILE_APPENDER" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<root level="INFO">
+		<appender-ref ref="FILE_APPENDER" />
+		<appender-ref ref="STDOUT" />
+	</root>
+	
+</configuration>
+xxxxxxxxxxxxxxxxdata-h2.sql
+insert into ec (cod,name) values (1,'TESTE1');
+insert into ec (cod,name) values (2,'TESTE2');
+insert into ec (cod,name) values (3,'TESTE3');
+insert into ec (cod,name) values (4,'TESTE4');
+insert into ec (cod,name) values (5,'TESTE5');
+insert into ec (cod,name) values (6,'TESTE6');
+insert into ec (cod,name) values (7,'TESTE7');
+insert into ec (cod,name) values (8,'TESTE8');
+insert into ec (cod,name) values (9,'TESTE9');
+insert into ec (cod,name) values (10,'TESTE10');
+insert into ec (cod,name) values (11,'TESTE11');
+
+xxxxxxxxxxxxxxxxapplication.yml
+server:
+  port: 8081
+
+logging:
+   config: classpath:logback.xml      
+
+spring:
+   tomcat:
+         initialSize: 5
+         logAbandoned: false
+         maxActive: 500
+         maxWait: 10000
+         minIdle: 5
+         testWhileIdle: true
+         testOnBorrow: true
+         validationInterval: 30000
+         validationQuery: SELECT 1 FROM DUAL
+         removeAbandoned: true    
+---
+
+spring:
+  profiles: test
+
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      
+  datasource:
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+      platform: h2
+      url: jdbc:h2:mem:testdb;Mode=Oracle
